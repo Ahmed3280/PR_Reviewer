@@ -45,7 +45,15 @@ async def review(request: ReviewRequest):
     graph = build_graph()
 
     try:
-        result = await asyncio.to_thread(graph.invoke, {"diff": diff})
+        result = await asyncio.wait_for(
+            asyncio.to_thread(graph.invoke, {"diff": diff}),
+            timeout=90
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=408,
+            detail="Review timed out. This PR is too large. Try a smaller PR with fewer files changed."
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Review pipeline failed: {str(e)}")
 
