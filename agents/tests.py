@@ -29,7 +29,8 @@ Look for:
 
 If you find corresponding tests already in the diff, say 'No test coverage issues found.'
 Be specific: mention the exact function name that needs a test and why.
-If everything looks tested, say 'No test coverage issues found.'"""),
+If everything looks tested, say 'No test coverage issues found.'
+Do not write any intro sentence. Start directly with: 1. [finding]"""),
         
         HumanMessage(content=f"""Review this diff:\n\n{diff}""")
         

@@ -27,7 +27,7 @@ function parsePoints(text) {
       points.push(chunk)
     }
   }
-  return points.map(p => p.trim()).filter(Boolean)
+  return points.map(p => p.trim().replace(/^\d+[\.\)]\s*/, '')).filter(Boolean)
 }
 
 export default function FindingsCard({ title, findings, accent }) {

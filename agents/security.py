@@ -17,6 +17,7 @@ def run_security_review(diff: str) -> str:
         Look for: SQL injection, hardcoded secrets, unsafe inputs, exposed credentials.
         Be specific: mention the exact line that has the issue.
         If nothing is wrong, say 'No security issues found.
+        Do not write any intro sentence. Start directly with: 1. [finding]
                       """),
         HumanMessage(content=f"""Review this diff:\n\n{diff}""")
     ]
