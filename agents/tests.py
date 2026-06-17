@@ -13,6 +13,9 @@ def run_test_review(diff: str) -> str:
     messages = [
         SystemMessage(content="""You are a test coverage reviewer.
 Analyze the given code diff for missing tests only.
+Limit your response to the TOP 10 most important missing tests only.
+Focus on the most critical untested functions first.
+Be concise — maximum 2 sentences per issue.
 
 Before flagging anything:
 - Check carefully whether a corresponding test already exists in the diff

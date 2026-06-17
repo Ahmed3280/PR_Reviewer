@@ -1,4 +1,4 @@
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, END, START
 from typing import TypedDict
 from agents.security import run_security_review
 from agents.style import run_style_review
@@ -76,12 +76,14 @@ def build_graph():
     graph.add_node("tests", test_node)
     graph.add_node("verdict", verdict_node)
     
-    #Set the entry point
-    graph.set_entry_point("security")
+     # Entry point fans out to all three specialists in parallel
+    graph.add_edge(START, "security")
+    graph.add_edge(START, "style")
+    graph.add_edge(START, "tests")
     
-    # Connect nodes in sequence
-    graph.add_edge("security", "style")
-    graph.add_edge("style", "tests")
+    # All three feed into verdict
+    graph.add_edge("security", "verdict")
+    graph.add_edge("style", "verdict")
     graph.add_edge("tests", "verdict")
     graph.add_edge("verdict", END)
     

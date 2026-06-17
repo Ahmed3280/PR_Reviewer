@@ -220,15 +220,34 @@ body {
 
 .findings-card__body {
   padding: 14px 16px;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
   line-height: 1.65;
   color: var(--text);
-  white-space: pre-wrap;
   word-break: break-word;
   overflow-y: auto;
   max-height: 380px;
   flex: 1;
+}
+
+.findings-card__body--clean {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.findings-point {
+  margin: 0;
+}
+.findings-point__num {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.findings-separator {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }
 
 /* ── Verdict ────────────────────────────────────────────────── */
@@ -262,20 +281,32 @@ body {
 .verdict-badge__icon  { font-size: 1.15rem; }
 .verdict-badge__label { font-size: 0.95rem; }
 
-.verdict-text {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  line-height: 1.7;
-  color: var(--text);
-  white-space: pre-wrap;
-  word-break: break-word;
+.verdict-summary {
   max-width: 760px;
+  width: 100%;
   text-align: left;
   background: var(--bg-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px 20px;
-  width: 100%;
+}
+
+.verdict-summary__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.verdict-summary__text {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
 }
 
 .reset-btn {

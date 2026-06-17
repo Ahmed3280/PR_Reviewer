@@ -30,7 +30,7 @@ export default function LoadingState({ repo, prNumber }) {
         <span className="mono">{repo}</span> #{prNumber}
       </p>
       <p className="loading-step">{STEPS[stepIndex].label}</p>
-      <p className="loading-elapsed">{elapsed}s elapsed — this usually takes 30–60 seconds</p>
+      <p className="loading-elapsed">{elapsed}s elapsed, this usually takes 30-60 seconds</p>
     </div>
   )
 }

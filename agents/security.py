@@ -11,6 +11,8 @@ def run_security_review(diff: str) -> str:
     
     messages = [
         SystemMessage(content="""You are a security code reviewer.
+        Limit your response to the TOP 10 most critical security issues only, 
+        ordered by severity (critical first). Be concise — maximum 2 sentences per issue.
         Analyze the given code diff for security vulnerabilities only.
         Look for: SQL injection, hardcoded secrets, unsafe inputs, exposed credentials.
         Be specific: mention the exact line that has the issue.
