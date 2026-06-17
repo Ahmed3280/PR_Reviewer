@@ -1,0 +1,342 @@
+[
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Security Vulnerabilities:**\n\n*   **SQL Injection Vulnerability**\n    *   **Line:** `cursor.execute(\"SELECT * FROM t WHERE col = '\" + username + \"'\")`\n    *   **Description:** The `username` variable is directly concatenated into the SQL query string. This makes the application vulnerable to SQL injection attacks. An attacker could craft a malicious `username` input (e.g., `' OR '1'='1` or `'; DROP TABLE t; --`) to alter the query's logic, bypass authentication, or execute arbitrary SQL commands on the database.\n    *   **Recommendation:** Revert to using parameterized queries (as in the original code) or prepared statements, which safely separate SQL logic from user-supplied data.",
+    "case_id": 1,
+    "expected_agent": "security",
+    "bug_type": "sql_injection",
+    "should_find": true,
+    "description": "SQL query built with string concatenation instead of parameterized query"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**SQL Injection Vulnerability**\n\nThe change introduces a severe SQL injection vulnerability.\n\n*   **Line +++ b/db.py:7**: The `order_id` variable is directly concatenated into the SQL query string without any sanitization or parameterization. This allows an attacker to inject malicious SQL code by providing a specially crafted `order_id`.\n\n    **Example Attack:** If an attacker provides `order_id = \"1' OR 1=1 --\"`, the query becomes `SELECT * FROM t WHERE col = '1' OR 1=1 --'`, which would return all rows from the `t` table, bypassing intended access controls. More destructive payloads could be used to modify or delete data.\n\n**Recommendation:** Revert to the original parameterized query approach, which correctly prevents SQL injection.\n\n```python\n# Correct and secure way:\ncursor.execute(\"SELECT * FROM t WHERE col = ?\", (order_id,))\n```",
+    "case_id": 2,
+    "expected_agent": "security",
+    "bug_type": "sql_injection",
+    "should_find": true,
+    "description": "SQL query built with string concatenation instead of parameterized query"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**SQL Injection Vulnerability**\n\n*   **Line 7**: `cursor.execute(\"SELECT * FROM t WHERE col = '\" + category + \"'\")`\n    The SQL query is constructed using string concatenation with the `category` variable. This is highly vulnerable to SQL injection. An attacker could provide a malicious `category` string (e.g., `' OR 1=1 --`) to alter the query's logic, bypass authentication, or extract sensitive data.\n    The previous code using a parameterized query (`query = \"SELECT * FROM products WHERE category = ?\" cursor.execute(query, (category,))`) was secure and should be reverted to.",
+    "case_id": 3,
+    "expected_agent": "security",
+    "bug_type": "sql_injection",
+    "should_find": true,
+    "description": "SQL query built with string concatenation instead of parameterized query"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Hardcoded Secret / Exposed Credential**\n\n*   **File:** `config.py`\n*   **Line:** `+++ b/config.py:4`\n*   **Issue:** The API key `sk-prod-abc123XYZ987secretkey` is hardcoded directly into the source code. This is a critical security vulnerability as it exposes a sensitive credential. Anyone with access to the code (e.g., in a version control system, build artifacts, or deployed application) will have access to this key. Secrets should always be loaded securely, for example, from environment variables, a secrets management service, or a secure configuration file, and never committed to source control.",
+    "case_id": 4,
+    "expected_agent": "security",
+    "bug_type": "hardcoded_secret",
+    "should_find": true,
+    "description": "API key hardcoded as a plaintext string literal instead of read from environment"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Security Vulnerability Found:**\n\n**Hardcoded Secret / Exposed Credential:**\nThe API key `sk-prod-abc123XYZ987secretkey` is hardcoded directly into the source code. This is a critical security vulnerability as it exposes a sensitive credential. If this code is committed to a version control system (especially a public one), or if the file is accessed by unauthorized individuals, the secret key will be compromised. Secrets should always be loaded from secure sources like environment variables, a secrets management service, or a secure configuration file, and never hardcoded.\n\n*   **Line:** `+ api_key = \"sk-prod-abc123XYZ987secretkey\"` (line 4)",
+    "case_id": 5,
+    "expected_agent": "security",
+    "bug_type": "hardcoded_secret",
+    "should_find": true,
+    "description": "API key hardcoded as a plaintext string literal instead of read from environment"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Hardcoded Secrets / Exposed Credentials:**\n\n*   **Line +4**: `api_key = \"sk-prod-abc123XYZ987secretkey\"`\n    The API key, which is a sensitive credential, has been hardcoded directly into the source code. Previously, it was correctly loaded from an environment variable (`os.environ.get(\"API_KEY\")`). Hardcoding secrets makes them vulnerable to exposure if the code repository is compromised or if the code is deployed in an insecure manner. This key should remain loaded from an environment variable or a secure secret management system.",
+    "case_id": 6,
+    "expected_agent": "security",
+    "bug_type": "hardcoded_secret",
+    "should_find": true,
+    "description": "API key hardcoded as a plaintext string literal instead of read from environment"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The following security vulnerability has been identified:\n\n**Unsafe Inputs / Potential SQL Injection**\n\n*   **Line +++ b/handler.py, line 3 (`return db.save_comment(user_input)`):** The removal of input validation (lines `if not user_input or len(user_input) > 200: raise ValueError(\"Invalid input\")`) means that the `user_input` can now be of arbitrary length, including empty strings or extremely long strings, and can contain any characters. If `db.save_comment` constructs SQL queries by directly concatenating `user_input` without using parameterized queries or proper escaping, this change significantly increases the risk of SQL injection attacks. Extremely long inputs could also lead to denial of service or resource exhaustion in the database.",
+    "case_id": 7,
+    "expected_agent": "security",
+    "bug_type": "missing_input_validation",
+    "should_find": true,
+    "description": "User input used directly without length or emptiness validation"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The provided diff removes input validation for `user_input` before it is passed to `db.search()`.\n\n**Security Vulnerabilities:**\n\n1.  **SQL Injection / Unsafe Input (High Risk):**\n    *   **Exact Line:** `handler.py:5` (`return db.search(user_input)`)\n    *   **Issue:** The removed lines `if not user_input or len(user_input) > 200: raise ValueError(\"Invalid input\")` previously performed basic validation on the `user_input`. By removing these checks, `user_input` is now passed directly to `db.search()` without any length limitation or check for emptiness.\n    *   **Impact:** If `db.search()` constructs a SQL query using string concatenation with `user_input` (a common pattern), this change significantly increases the risk of SQL injection. An attacker can now provide arbitrarily long malicious strings to manipulate database queries, bypass authentication, or exfiltrate data. Even if `db.search()` is not SQL-based, unbounded input length can lead to other issues like Denial of Service (DoS) by exhausting memory or CPU resources in the backend system, or other forms of injection depending on the nature of `db.search`.\n    *   **Recommendation:** Reintroduce robust input validation, including length checks, and ensure that `db.search()` uses parameterized queries or proper escaping for all user-supplied input to prevent injection attacks.",
+    "case_id": 8,
+    "expected_agent": "security",
+    "bug_type": "missing_input_validation",
+    "should_find": true,
+    "description": "User input used directly without length or emptiness validation"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Security Vulnerabilities:**\n\n*   **SQL Injection:**\n    *   **Line:** `+    cursor.execute(f\"SELECT * FROM reports WHERE id = {report_id}\")`\n    *   **Issue:** The change introduces a severe SQL injection vulnerability. The `report_id` variable is directly interpolated into the SQL query string using an f-string. If `report_id` comes from untrusted user input, an attacker can craft malicious input (e.g., `'1 OR 1=1 --'`, `'1; DROP TABLE reports; --'`) to alter the query's logic, retrieve unauthorized data, or manipulate/delete database content.\n    *   **Recommendation:** Revert to using parameterized queries (the previous secure method) where the input is passed as a separate argument to `cursor.execute()`, allowing the database driver to properly escape or quote the value.\n    *   **Corrected line (reverting):** `cursor.execute(\"SELECT * FROM reports WHERE id = ?\", (report_id,))`",
+    "case_id": 9,
+    "expected_agent": "security",
+    "bug_type": "sql_injection",
+    "should_find": true,
+    "description": "SQL injection via f-string interpolation (no + operator)"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Hardcoded Secrets / Exposed Credentials**\n\n*   **Line 4:** `+ \"api_key\": \"sk-live-xK9mP2qR7nL4wZ8vB3cY\",`\n    A live API key is hardcoded directly into the `settings.py` file. This is a severe security vulnerability. Secrets, especially live API keys, should never be hardcoded. They should be loaded from environment variables, a secure vault, or a configuration management system to prevent exposure in source control, especially if the repository is public or accessible to unauthorized personnel.",
+    "case_id": 10,
+    "expected_agent": "security",
+    "bug_type": "hardcoded_secret",
+    "should_find": true,
+    "description": "API key hardcoded inside a dict literal, not a bare assignment"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "No security issues found.\n\nThe changes introduced in this diff (importing `secrets` and handling `None` for `stored_hash`) are improvements for robustness and security (e.g., preventing timing attacks with `compare_digest` and handling non-existent users gracefully).\n\nWhile `db.get_password_hash(username)` (line 6) interacts with a database and `username` is an input, the implementation of `db.get_password_hash` is not provided in this diff. Therefore, we cannot assess its SQL injection vulnerability here. The code shown in the diff itself does not introduce or contain a direct SQL injection vulnerability.",
+    "case_id": 11,
+    "expected_agent": "security",
+    "bug_type": "hardcoded_secret",
+    "should_find": false,
+    "description": "Clean diff — no hardcoded_secret present"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "The provided diff introduces positive security changes.\n\n1.  **SQL Injection Mitigation (Improvement)**:\n    *   **Old code**: Line `results = db.search(term)` (line 6 in `--- a/api.py`) presented a potential SQL injection vulnerability if `db.search` did not use parameterized queries or proper escaping for the user-controlled `term`.\n    *   **New code**: The diff addresses this by:\n        *   **Input Validation**: Adding `if not term or len(term) > 100:` (lines 6-7 in `+++ b/api.py`) which limits the length of the input and ensures it's not empty, reducing the attack surface.\n        *   **Safer Function Call**: Changing `db.search(term)` to `db.search_safe(term)` (line 9 in `+++ b/api.py`). The `_safe` suffix strongly implies that this new function uses parameterized queries or other secure methods to prevent SQL injection.\n\nNo new security issues are introduced, and existing potential vulnerabilities are addressed by the changes in this diff.",
+    "case_id": 12,
+    "expected_agent": "security",
+    "bug_type": "missing_input_validation",
+    "should_find": false,
+    "description": "Clean diff — no missing_input_validation present"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "No security issues found.\n\nThe new `get_profile` function correctly uses parameterized queries (`WHERE user_id = ?`, `(user_id,)`), which prevents SQL injection.",
+    "case_id": 13,
+    "expected_agent": "security",
+    "bug_type": "sql_injection",
+    "should_find": false,
+    "description": "Clean diff — no sql_injection present"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "No security issues found.\nThe new `store_password` function correctly uses `bcrypt` for hashing passwords before storage, which is a strong security practice. It also uses a parameterized query (`UPDATE users SET password_hash = ? WHERE id = ?`) to interact with the database, which prevents SQL injection vulnerabilities. The `verify_password` function correctly uses `bcrypt.checkpw` for secure password verification.",
+    "case_id": 14,
+    "expected_agent": "security",
+    "bug_type": "hardcoded_secret",
+    "should_find": false,
+    "description": "Clean diff — no hardcoded_secret present"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "No security issues found.\n\nThe provided diff introduces a `validate_input` function which aims to sanitize and validate user-supplied strings. This function performs checks for:\n- Non-empty string type.\n- Maximum length (500 characters).\n- Disallowed characters (`<`, `>`, `\"`, `'`, `;`, `(`, `)`, `&`, `+`).\n\nThese checks are positive steps towards preventing common web vulnerabilities such as:\n- **Cross-Site Scripting (XSS)** by blocking `<` and `>`.\n- **SQL Injection** by blocking `'`, `\"`, and `;`.\n- **Command Injection** by blocking `;`, `(`, `)`, and `&`.\n\nThe `process_form` function then applies this validation to all key-value pairs in the input dictionary. This diff improves the security posture of the application by introducing input validation and sanitization.",
+    "case_id": 15,
+    "expected_agent": "security",
+    "bug_type": "missing_input_validation",
+    "should_find": false,
+    "description": "Clean diff — no missing_input_validation present"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The following style issues were found:\n\n*   **Unclear Logic / Poor Naming Conventions:** The change from descriptive parameter names (`total_price`, `item_count`, `discount_rate`) to single-letter, non-descriptive names (`x`, `a`, `b`) significantly reduces the readability and understandability of the function. It's unclear what `x`, `a`, or `b` represent without carefully reading the function's logic.\n    *   Line `+1`: `def calculate_total(x: float, a: int, b: float) -> float:`\n    *   Line `+2`: `x = x * a`\n    *   Line `+3`: `x = x * (1 - b)`",
+    "case_id": 16,
+    "expected_agent": "style",
+    "bug_type": "bad_variable_name",
+    "should_find": true,
+    "description": "Meaningful variable names replaced with single-letter identifiers"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "```diff\n--- a/pricing.py\n+++ b/pricing.py\n@@ -1,5 +1,5 @@\n-def apply_discount(total_price: float, item_count: int, discount_rate: float) -> float:\n-    total_price = total_price * item_count\n-    discount_rate = discount_rate / 100\n-    total_price = total_price - (total_price * discount_rate)\n-    return total_price\n+def apply_discount(x: float, a: int, b: float) -> float:\n+    x = x * a\n+    b = b / 100\n+    x = x - (x * b)\n+    return x\n```\n\n**Style Review:**\n\n*   **Line 1 (and subsequent lines): Unclear variable names.** The variable names `x`, `a`, and `b` are not descriptive. It is difficult to understand their purpose without carefully reading the function's logic and inferring their meaning. This significantly reduces the readability and maintainability of the code. Descriptive names like `total_price`, `item_count`, and `discount_rate` (as in the original code) are much clearer.",
+    "case_id": 17,
+    "expected_agent": "style",
+    "bug_type": "bad_variable_name",
+    "should_find": true,
+    "description": "Meaningful variable names replaced with single-letter identifiers"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "```diff\n--- a/pricing.py\n+++ b/pricing.py\n@@ -1,5 +1,5 @@\n def compute_shipping(total_price: float, item_count: int, discount_rate: float) -> float:\n     base = total_price * item_count\n     discount_rate = min(discount_rate, 0.5)\n     total_price = base * (1 - discount_rate)\n     return total_price\n```\n\n**Style Review:**\n\n*   **Line +1, +2, +3, +4, +5 - Unclear Naming:** The parameter names `x`, `a`, and `b` are not descriptive. This makes the code very hard to understand without deeply analyzing the logic. For example, it's unclear what `x` represents initially, what `a` is, or what `b` is. The original parameter names (`total_price`, `item_count`, `discount_rate`) were much clearer. Similarly, the variable `x` is reused for the final calculation and returned, which is also not descriptive of what the function actually returns (presumably the shipping cost). Using descriptive names like `initial_price`, `quantity`, `discount_percentage`, and `shipping_cost` would greatly improve readability.",
+    "case_id": 18,
+    "expected_agent": "style",
+    "bug_type": "bad_variable_name",
+    "should_find": true,
+    "description": "Meaningful variable names replaced with single-letter identifiers"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "```diff\n--- a/pricing.py\n+++ b/pricing.py\n@@ -1,4 +1,3 @@\n def calculate_total(price: float, quantity: int, discount: float) -> float:\n-    \"\"\"Calculate the total price after applying discount.\"\"\"\n     subtotal = price * quantity\n     return subtotal * (1 - discount)\n```\n\n**Style Review:**\n\n*   **Missing Docstring:** The docstring for the `calculate_total` function has been removed. Docstrings are crucial for explaining what a function does, its arguments, and what it returns, improving code readability and maintainability.\n    *   **Line:** `1` (for `def calculate_total(...)`)",
+    "case_id": 19,
+    "expected_agent": "style",
+    "bug_type": "missing_docstring",
+    "should_find": true,
+    "description": "Function is missing a docstring explaining its purpose"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "Line 1: The `format_address` function is missing a docstring. While the removed docstring was incorrect, the function still requires one to explain its purpose, arguments, and return value for better readability and maintainability.",
+    "case_id": 20,
+    "expected_agent": "style",
+    "bug_type": "missing_docstring",
+    "should_find": true,
+    "description": "Function is missing a docstring explaining its purpose"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The following style issues were found:\n\n*   **Missing Docstring**: The `parse_date` function is missing a docstring. While the removed docstring was incorrect for this function, a new, accurate one should be added to explain its purpose, arguments, and return value.\n    *   **Line 1** (after `def parse_date(date_str: str) -> tuple:`): Add a docstring explaining that the function parses a date string into a tuple of integers (year, month, day).",
+    "case_id": 21,
+    "expected_agent": "style",
+    "bug_type": "missing_docstring",
+    "should_find": true,
+    "description": "Function is missing a docstring explaining its purpose"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "**Line 2: `def process_payment(amount: float, card_token: str) -> dict:`**\nThe docstring for this function is `\"\"\"TODO\"\"\"`. It should be completed to describe what the function does, its parameters, and what it returns.",
+    "case_id": 22,
+    "expected_agent": "style",
+    "bug_type": "missing_docstring",
+    "should_find": true,
+    "description": "Docstring present but contains only \"TODO\" — meaningless placeholder"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "*   **Line 7:** The variable name `n` is less descriptive than `attempts`. While `n` is often used for \"number,\" in this context, `attempts` clearly indicates what the variable represents without ambiguity. Using `attempts` makes the code more readable and self-documenting.\n*   **Line 5:** The function `check_login_attempts` is missing a docstring explaining its purpose, arguments, and what it returns.",
+    "case_id": 23,
+    "expected_agent": "style",
+    "bug_type": "bad_variable_name",
+    "should_find": true,
+    "description": "Single-letter variable `n` buried inside an otherwise clean function"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "No style issues found.",
+    "case_id": 24,
+    "expected_agent": "style",
+    "bug_type": "missing_docstring",
+    "should_find": false,
+    "description": "Clean diff — no missing_docstring present"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "No style issues found.",
+    "case_id": 25,
+    "expected_agent": "style",
+    "bug_type": "bad_variable_name",
+    "should_find": false,
+    "description": "Clean diff — no bad_variable_name present"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The new function `process_refund` has been added to `orders.py` but there is no corresponding test function for it in the provided diff.\n\nMissing test:\n*   `process_refund`: This function needs tests to cover its logic, specifically:\n    *   When `amount` is less than or equal to 0 (should return `False`).\n    *   When `amount` is greater than 0 (should execute the database update and return `True`).",
+    "case_id": 26,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New function process_refund added with no corresponding test"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The `process_refund` function has been added, but there is no corresponding test function for it in the diff.\n\nMissing tests for:\n*   **`process_refund`**:\n    *   Test the successful refund scenario (e.g., `amount > 0`).\n    *   Test the edge case where `amount` is zero or negative, which should return `False` without updating the database.",
+    "case_id": 27,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New function process_refund added with no corresponding test"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The new function `process_refund` is missing test coverage.\nIt handles a critical path (amount <= 0) and database interaction, which should be tested.",
+    "case_id": 28,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New function process_refund added with no corresponding test"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "The new function `process_refund` is missing corresponding tests.\n\nSpecifically, tests are needed for:\n1.  The successful refund path (when `amount > 0`).\n2.  The edge case where `amount <= 0` and the function should return `False` without interacting with the database.",
+    "case_id": 29,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New function process_refund added with no corresponding test"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The new function `process_refund` is missing test coverage.",
+    "case_id": 30,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New function process_refund added with no corresponding test"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The `process_refund` function is new and does not have any corresponding tests in the provided diff.\n\n**Missing tests:**\n*   `process_refund`:\n    *   Test the case where `amount` is less than or equal to 0 (should return `False`).\n    *   Test the successful refund case where `amount` is greater than 0 (should return `True` and ensure the `db.execute` call happens with the correct parameters).",
+    "case_id": 31,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New function process_refund added with no corresponding test"
+  },
+  {
+    "caught": true,
+    "false_positive": false,
+    "agent_response": "The `Cart.apply_coupon` method is new in this diff and has no corresponding test cases.\n\nMissing tests for `Cart.apply_coupon`:\n*   Test case for a valid and active coupon.\n*   Test case for a coupon that does not exist.\n*   Test case for an existing coupon that is not active.",
+    "case_id": 32,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": true,
+    "description": "New class method apply_coupon added with no corresponding test"
+  },
+  {
+    "caught": false,
+    "false_positive": true,
+    "agent_response": "The `cancel_order` function has a conditional branch for when the `order` is not found (`order is None`). The existing `test_cancel_order` only covers the successful cancellation path where a valid order exists.\n\nMissing test for:\n-   `cancel_order`: Need a test case to verify the behavior when `db.get_order(order_id)` returns `None` (e.g., passing a non-existent `order_id`). This should assert that `cancel_order` returns `False`.",
+    "case_id": 33,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": false,
+    "description": "Clean diff — no missing_test present"
+  },
+  {
+    "caught": false,
+    "false_positive": false,
+    "agent_response": "The `restock` function is missing a test for the `quantity <= 0` edge case. The current `test_restock` only covers the path where `quantity` is positive.\n\nA new test should be added to verify that `restock` returns `False` when `quantity` is `0` or negative, as specified in its docstring.",
+    "case_id": 34,
+    "expected_agent": "tests",
+    "bug_type": "missing_test",
+    "should_find": false,
+    "description": "Clean diff — no missing_test present"
+  }
+]
