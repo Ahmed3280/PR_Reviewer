@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:8000/health\" -Method GET)",
+      "PowerShell($body = '{\"repo\": \"psf/requests\", \"pr_number\": 6710}'; $resp = Invoke-RestMethod -Uri \"http://localhost:8000/review\" -Method POST -ContentType \"application/json\" -Body $body; Write-Host \"Keys: $\\(\\($resp | Get-Member -MemberType NoteProperty\\).Name -join ', '\\)\"; Write-Host \"---security \\(first 120 chars\\)---\"; Write-Host \\($resp.security_findings.Substring\\(0, [Math]::Min\\(120, $resp.security_findings.Length\\)\\)\\); Write-Host \"---verdict \\(first 200 chars\\)---\"; Write-Host \\($resp.final_verdict.Substring\\(0, [Math]::Min\\(200, $resp.final_verdict.Length\\)\\)\\))"
+    ]
+  }
+}
