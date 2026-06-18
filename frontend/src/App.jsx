@@ -4,7 +4,7 @@ import LoadingState from './components/LoadingState'
 import FindingsCard from './components/FindingsCard'
 import VerdictBadge from './components/VerdictBadge'
 
-const API_BASE = 'http://localhost:8000'
+const API_BASE = 'http://16.171.0.64:8000'
 
 export default function App() {
   const [state, setState] = useState('idle') // idle | loading | done | error

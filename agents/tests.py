@@ -30,7 +30,8 @@ Look for:
 If you find corresponding tests already in the diff, say 'No test coverage issues found.'
 Be specific: mention the exact function name that needs a test and why.
 If everything looks tested, say 'No test coverage issues found.'
-Do not write any intro sentence. Start directly with: 1. [finding]"""),
+IMPORTANT: Do NOT write any intro sentence like "Here are the top 10 most important missing tests". 
+Output ONLY the numbered findings. First line must be "1. [MethodName]:", nothing before it."""),
         
         HumanMessage(content=f"""Review this diff:\n\n{diff}""")
         
