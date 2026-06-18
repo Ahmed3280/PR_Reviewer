@@ -1,6 +1,6 @@
 # Multi-Agent PR Code Reviewer
 
-A multi-agent system that automatically reviews GitHub pull requests using three specialist LangGraph agents running in parallel. Each agent focuses on one dimension of code quality, and a manager graph synthesizes their findings into a final verdict.
+A multi-agent system that automatically reviews GitHub pull requests using three specialist LangGraph agents running in parallel. Each agent focuses on one dimension of code quality, and a manager graph synthesizes their findings into a final verdict. The FastAPI backend runs in Docker on AWS EC2 and the React frontend is hosted on AWS S3.
 
 > 🎥 **Demo Video:** https://www.linkedin.com/posts/ahm-akram_langchain-langgraph-generativeai-ugcPost-7473336860979916801-pypx/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEPWV-gBgHDP4p_62oLfgS-vqdy4iKActkQ
 
